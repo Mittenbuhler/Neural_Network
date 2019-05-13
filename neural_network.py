@@ -98,3 +98,8 @@ class NeuralNetwork:
         for i in np.arange(target_data.shape[-1]):    
             print('Recall for ' + str(i) + ': ' + str('%.2f' % (self.recall[i] * 100)) + '%')
             print('Precision for ' + str(i) + ': ' + str('%.2f' % (self.precision[i] * 100)) + '%')
+
+
+# Cross validation for determining best hyperparameters
+def find_hyperparameters():
+    pass
