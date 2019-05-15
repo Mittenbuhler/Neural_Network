@@ -1,5 +1,6 @@
 import numpy as np
-
+import idx2numpy
+import os
 
 class NeuralNetwork:
 
@@ -10,23 +11,33 @@ class NeuralNetwork:
     def ReLU(x):
         return np.maximum(0.0, x)
     
-    def __init__(self, design, step_size=0.01, activation_function=sigmoid, dropout=False, bias=False):
+    def __init__(self, design, weights=None, step_size=0.01, activation_function=sigmoid, dropout=False, bias=False):
         self.design = design
         self.step_size = step_size
         self.activation_function = activation_function # does not work properly (cannot select ReLU)
         self.bias = bias
         self.dropout = dropout
-        self.create_weights()
+        self.weights = weights
+        if self.weights is None:
+            self.weights = [np.zeros(0)]
+            for i in np.arange(len(self.design)-1):
+                self.weights.append(np.random.uniform(-1,1,[self.design[i+1], self.design[i]]))
         self.activation = []
-    
-    def create_weights(self):
-        self.weights = [np.zeros(0)]
-        for i in np.arange(len(self.design)-1):
-            self.weights.append(np.random.uniform(-1,1,[self.design[i+1], self.design[i]]))
+
+        if self.weights[1].shape == (self.design[1], self.design[0]):
+            print('Network created successfully')
+        else:
+            print('Network creation failed')
     
     def train(self, input_data, target_data): # actually just place holder for batch gradient descent
+        print('Training...')
         for i in np.arange(len(input_data)):
             self.one_training(input_data[i], target_data[i])
+        
+        if i == len(input_data) - 1:
+            print('Data trained successfully')
+        else:
+            print('Training failed')
     
     def one_training(self, input_data, target_data):
         
@@ -63,6 +74,7 @@ class NeuralNetwork:
         return self.activation[-1]
     
     def evaluate(self, input_data, target_data, performance_measure=True):
+        print('Testing...')
         confusion_matrix = np.zeros([target_data.shape[-1],target_data.shape[-1]]) # Initialize confusion matrix
         
         # Compute confusion matrix (one data point at a time)
@@ -99,7 +111,49 @@ class NeuralNetwork:
             print('Recall for ' + str(i) + ': ' + str('%.2f' % (self.recall[i] * 100)) + '%')
             print('Precision for ' + str(i) + ': ' + str('%.2f' % (self.precision[i] * 100)) + '%')
 
+    def save(self, file_name):
+        np.save(file_name + '.npy', np.asarray(self.weights))
+        if os.path.isfile(file_name + '.npy'):
+            print('Network saved successfully as ' + file_name + '.npy')
+        else:
+            print('Saving failed')
 
 # Cross validation for determining best hyperparameters
 def find_hyperparameters():
     pass
+
+# Import and pre_process data
+def pre_processing():
+    
+    os.chdir('/Users/Max/Documents/Studium/Master/Semester_2/Programming/Data')
+
+    # Load data and convert data to numpy arrays
+    train_images = idx2numpy.convert_from_file('train-images.idx3-ubyte')
+    train_labels = idx2numpy.convert_from_file('train-labels.idx1-ubyte')
+    test_images = idx2numpy.convert_from_file('t10k-images.idx3-ubyte')
+    test_labels = idx2numpy.convert_from_file('t10k-labels.idx1-ubyte')
+
+    # Re-scale input values from intervals [0,255] to [0.01,1] (necessary for optimal performance of NN)
+    train_images = train_images * (0.99/255) + 0.01
+    test_images = test_images * (0.99/255) + 0.01
+
+    # Convert label data to one-hot representation with either 0.01 or 0.99 (also necessary for optimal performance of NN and to compute confusion matrix)
+    train_labels = np.asfarray(train_labels) # convert to floats
+    test_labels = np.asfarray(test_labels)
+    train_labels = np.array(train_labels, ndmin=2).T # convert to column vector
+    test_labels = np.array(test_labels, ndmin=2).T
+    train_labels = (np.arange(10)==train_labels).astype(np.float) # convert to one-hot representation
+    test_labels = (np.arange(10)==test_labels).astype(np.float)
+    train_labels[train_labels==1] = 0.99 # substitute 0/1 for 0.01/0.99
+    test_labels[test_labels==1] = 0.99
+    train_labels[train_labels==0] = 0.01
+    test_labels[test_labels==0] = 0.01
+
+    if train_images.shape == (60000, 28, 28) and train_labels.shape == (60000, 10):
+        print('Data preprocessed successfully')
+    else:
+        print('Preprocessing failed')
+
+    os.chdir('/Users/Max/Documents/Studium/Master/Semester_2/Programming/Scripts')
+    
+    return train_images, train_labels, test_images, test_labels

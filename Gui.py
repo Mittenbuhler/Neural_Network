@@ -1,11 +1,16 @@
 from tkinter import *
 import numpy as np
-from neural_network import *
+from nn_functions import *
 import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageOps
 
 class Gui:
     
     def __init__(self, master):
+        
+        # Build neural network
+        self.weights = np.load('my_network.npy').tolist()
+        self.neural_network = NeuralNetwork([784,100,100,10], weights=self.weights)
         
         # Layout and frames
         master.geometry('410x330')
@@ -51,6 +56,10 @@ class Gui:
         sub_4.pack(side=TOP)
         self.alternative_field = Text(feedback_frame, height=1, width=1, font=("Helvetica", 50), bg='light grey')
         self.alternative_field.pack(side=TOP)
+        
+        #PIL
+        self.image=Image.new("RGB",(250,250),(255,255,255))
+        self.draw=ImageDraw.Draw(self.image)
 
     def tell_me_where_you_are(self, event):
         self.previous_x = event.x
@@ -59,13 +68,17 @@ class Gui:
     def draw_from_where_you_are(self, event):
         self.x = event.x
         self.y = event.y
-        self.drawing_field.create_polygon(self.previous_x, self.previous_y, self.x, self.y, 
-                                width=20, outline='black')    
+        self.drawing_field.create_polygon(self.previous_x, self.previous_y, self.x, self.y, width=20, outline='black')
+        self.draw.line(((self.previous_x, self.previous_y),(self.x, self.y)),(1,1,1), width=20)
         self.previous_x = self.x
         self.previous_y = self.y
+
+        img_inverted = ImageOps.invert(self.image)
+        img_resized = img_inverted.resize((28,28), Image.ANTIALIAS)
+        self.input_image = np.asarray(img_resized)[:,:,0] * (0.99/255) + 0.01
         
     def run_nn(self):
-        output = n.run(train_images[0]).T[0]
+        output = self.neural_network.run(self.input_image).T[0]
         self.prediction = np.argmax(output)
         self.confidence = np.max(output)
         self.alternative = np.argsort(output)[-2]
@@ -77,11 +90,16 @@ class Gui:
             self.alternative_field.insert(END, '/')
         
     def reset(self):
+        # Reset tkinter
         self.prediction_field.delete(1.0,END)
         self.confidence_field.delete(1.0,END)
         self.alternative_field.delete(1.0,END)
         self.drawing_field.delete('all')
+        # Reset PIL
+        self.image=Image.new("RGB",(250,250),(255,255,255))
+        self.draw=ImageDraw.Draw(self.image)
 
-root = Tk()
-b = Gui(root)
-root.mainloop()
+if __name__ == "__main__":
+    root = Tk()
+    a = Gui(root)
+    root.mainloop()
