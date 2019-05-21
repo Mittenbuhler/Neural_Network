@@ -88,8 +88,7 @@ class NeuralNetwork:
                 self.activation[i+1] = np.array(np.append(1, self.activation[i+1]), ndmin=2).T
         return self.activation[-1]
     
-    def evaluate(self, input_data, target_data, performance_measure=True):
-        print('Testing...')
+    def evaluate(self, input_data, target_data):
         confusion_matrix = np.zeros([target_data.shape[-1],target_data.shape[-1]]) # Initialize confusion matrix
         
         # Compute confusion matrix (one data point at a time)
@@ -132,10 +131,6 @@ class NeuralNetwork:
             print('Network saved successfully as ' + file_name + '.npy')
         else:
             print('Saving failed')
-
-# Cross validation for determining best hyperparameters
-def find_hyperparameters():
-    pass
 
 # Import and pre_process data
 def pre_processing():
