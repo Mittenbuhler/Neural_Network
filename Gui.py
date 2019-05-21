@@ -10,9 +10,10 @@ class Gui:
         
         # Build neural network
         self.weights = np.load('my_network.npy').tolist()
-        self.neural_network = NeuralNetwork([784,100,100,10], weights=self.weights)
+        self.neural_network = NeuralNetwork([784,200,100,10], weights=self.weights, bias=True)
         
         # Layout and frames
+        master.title('Digit Recognition!')
         master.geometry('410x330')
         border_color='white'
         input_frame = Frame(master, highlightbackground=border_color, highlightthickness=2)
@@ -35,11 +36,14 @@ class Gui:
         # Drawing field
         sub_1 = Label(input_frame, text='Write your digit!', font=("Helvetica", 15))
         sub_1.pack(side=TOP)
-        self.drawing_field = Canvas(input_frame, height=250, width=250, bg='white', cursor='cross', 
+        self.drawing_field = Canvas(input_frame, height=250, width=250, cursor='cross', 
                                     highlightbackground="black", highlightthickness=2)
         self.drawing_field.pack() 
         self.drawing_field.bind("<Motion>", self.tell_me_where_you_are)
         self.drawing_field.bind("<B1-Motion>", self.draw_from_where_you_are)
+
+        # Indication where to draw the digit
+        self.drawing_field.create_rectangle(75,45, 175,205, fill='light grey', outline='light grey')
         
         # Feedback field
         sub_2 = Label(feedback_frame, text='Recognized as...', font=("Helvetica", 15))
@@ -95,6 +99,7 @@ class Gui:
         self.confidence_field.delete(1.0,END)
         self.alternative_field.delete(1.0,END)
         self.drawing_field.delete('all')
+        self.drawing_field.create_rectangle(75,45, 175,205, fill='light grey', outline='light grey') # this could be more elegant...
         # Reset PIL
         self.image=Image.new("RGB",(250,250),(255,255,255))
         self.draw=ImageDraw.Draw(self.image)

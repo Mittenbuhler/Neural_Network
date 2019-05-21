@@ -18,21 +18,24 @@ class NeuralNetwork:
         self.bias = bias
         self.dropout = dropout
         self.weights = weights
+        self.activation = []
         if self.weights is None:
             self.weights = [np.zeros(0)]
             for i in np.arange(len(self.design)-1):
-                self.weights.append(np.random.uniform(-1,1,[self.design[i+1], self.design[i]]))
-        self.activation = []
-
-        if self.weights[1].shape == (self.design[1], self.design[0]):
+                self.weights.append(np.random.uniform(-1,1,[self.design[i+1], self.design[i]+self.bias]))
+            
+        if self.weights[1].shape == (self.design[1], self.design[0]+self.bias):
             print('Network created successfully')
         else:
-            print('Network creation failed')
+            print('Network creation failed')        
     
-    def train(self, input_data, target_data): # actually just place holder for batch gradient descent
+    def train(self, input_data, target_data, epochs=1): # actually just place holder for batch gradient descent
         print('Training...')
-        for i in np.arange(len(input_data)):
-            self.one_training(input_data[i], target_data[i])
+
+        for epoch in np.arange(epochs):
+            print('Epoch: ' + str(epoch+1))
+            for i in np.arange(len(input_data)):
+                self.one_training(input_data[i], target_data[i])
         
         if i == len(input_data) - 1:
             print('Data trained successfully')
@@ -43,6 +46,8 @@ class NeuralNetwork:
         
         # Convert data into coumn vectors
         input_vector = np.array(input_data.flatten(), ndmin=2).T
+        if self.bias: # add 1 to input-vector
+            input_vector = np.array(np.append(1, input_vector), ndmin=2).T
         target_vector = np.array(target_data, ndmin=2).T
         
         # Compute activation/output
@@ -50,27 +55,37 @@ class NeuralNetwork:
         self.activation.append(input_vector)
         for i in np.arange(len(self.design)-1):
             self.activation.append(self.activation_function(self.weights[i+1] @ self.activation[i]))
+            if self.bias: # add 1 to activation-vector
+                self.activation[i+1] = np.array(np.append(1, self.activation[i+1]), ndmin=2).T
+            #print(self.activation[i+1].shape)
             
         # Compute error
-        error = target_vector - self.activation[-1]
+        error = target_vector - self.activation[-1][self.bias:]
         
         # Update weights
         for i in np.arange(len(self.design)-1,0,-1): # move backwards through NN
-            correction = self.step_size * ((error * self.activation[i] * (1.0 - self.activation[i])) @ self.activation[i-1].T)
+            #print('layer: ' + str(i))
+            correction = self.step_size * ((error * self.activation[i][self.bias:] * (1.0 - self.activation[i][self.bias:])) @ self.activation[i-1].T)
+            #print(correction.shape)
             self.weights[i] += correction
             error = self.weights[i].T @ error
+            error = error[self.bias:] # cut off bias error
+            #print('error: ' + str(error.shape))
     
     def run(self, input_data):
         
         # Convert data into column vector
         input_vector = np.array(input_data.flatten(), ndmin=2).T
+        if self.bias: # add 1 to input-vector
+            input_vector = np.array(np.append(1, input_vector), ndmin=2).T
         
         # Compute layer outputs/activations
         self.activation = [] # initialize activation list
         self.activation.append(input_vector)
         for i in np.arange(len(self.design)-1):
             self.activation.append(self.activation_function(self.weights[i+1] @ self.activation[i]))
-            
+            if self.bias and i != len(self.design)-2: # add 1 to activation-vector (except for output vector)
+                self.activation[i+1] = np.array(np.append(1, self.activation[i+1]), ndmin=2).T
         return self.activation[-1]
     
     def evaluate(self, input_data, target_data, performance_measure=True):
@@ -125,7 +140,7 @@ def find_hyperparameters():
 # Import and pre_process data
 def pre_processing():
     
-    os.chdir('/Users/Max/Documents/Studium/Master/Semester_2/Programming/Data')
+    os.chdir('Data')
 
     # Load data and convert data to numpy arrays
     train_images = idx2numpy.convert_from_file('train-images.idx3-ubyte')
@@ -154,6 +169,6 @@ def pre_processing():
     else:
         print('Preprocessing failed')
 
-    os.chdir('/Users/Max/Documents/Studium/Master/Semester_2/Programming/Scripts')
+    os.chdir('..')
     
     return train_images, train_labels, test_images, test_labels
