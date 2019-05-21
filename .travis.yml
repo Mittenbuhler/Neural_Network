@@ -4,4 +4,4 @@ python:
   - "3.7"
 
 script:
-  - test_neural_network
+  - python -m unittest
