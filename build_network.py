@@ -1,4 +1,4 @@
-from nn_functions import *
+from nn_functions import NeuralNetwork, pre_processing
 
 # Import data
 train_images, train_labels, test_images, test_labels = pre_processing()
