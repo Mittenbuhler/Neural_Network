@@ -6,7 +6,6 @@ from PIL import Image, ImageDraw, ImageOps
 from nn_functions import NeuralNetwork
 
 
-
 class Gui:
     
     def __init__(self, master):
@@ -34,7 +33,7 @@ class Gui:
         # Layout and frames
         self.master = master
         self.master.title('Digit Recognition')
-        self.master.geometry('410x330')
+        self.master.geometry('450x330')
         border_color='white' # Not visible, just for development purposes
         input_frame = tk.Frame(master, 
             highlightbackground=border_color, highlightthickness=2)
@@ -79,21 +78,24 @@ class Gui:
             text='Recognized as...', font=("Helvetica", 15))
         heading_2.pack(side=tk.TOP)
         self.prediction_field = tk.Text(feedback_frame, 
-            height=1, width=1, font=("Helvetica", 50), bg='light grey')
+            height=1, width=1, font=("Helvetica", 50), bg='light grey', 
+            state='disabled')
         self.prediction_field.pack(side=tk.TOP)
         
         heading_3 = tk.Label(feedback_frame, 
             text='Confidence...', font=("Helvetica", 15))
         heading_3.pack(side=tk.TOP)
         self.confidence_field = tk.Text(feedback_frame, 
-            height=1, width=4, font=("Helvetica", 50), bg='light grey')
+            height=1, width=5, font=("Helvetica", 50), bg='light grey',
+            state='disabled')
         self.confidence_field.pack(side=tk.TOP)
         
         heading_4 = tk.Label(feedback_frame, 
             text='Alternative...', font=("Helvetica", 15))
         heading_4.pack(side=tk.TOP)
         self.alternative_field = tk.Text(feedback_frame, 
-            height=1, width=1, font=("Helvetica", 50), bg='light grey')
+            height=1, width=1, font=("Helvetica", 50), bg='light grey',
+            state='disabled')
         self.alternative_field.pack(side=tk.TOP)
         
         # PIL drawing field
@@ -139,7 +141,7 @@ class Gui:
         # Save as previous position
         self.previous_x = self.x
         self.previous_y = self.y
-        
+
     def run_nn(self):
         """ Feeds image to neural network and retreives output. """
 
@@ -148,29 +150,44 @@ class Gui:
         img_resized = img_inverted.resize((28,28), Image.ANTIALIAS)
         self.input_image = np.asarray(img_resized)[:,:,0] * (0.99/255) + 0.01
 
-        # Forward propagation of neural network
-        output = self.neural_network.run(self.input_image).T[0]
+        if self.input_image.sum() > 0.01*784: # drawing not empty
+            # Forward propagation of neural network
+            output = self.neural_network.run(self.input_image).T[0]
+            linear_output = np.log(output/(1-output))
+            softmax_output = np.exp(linear_output) / np.sum(np.exp(linear_output), axis=0)
 
-        # Extract output from neural network
-        self.prediction = np.argmax(output)
-        self.confidence = np.max(output)
-        self.alternative = np.argsort(output)[-2]
+            # Extract output from neural network
+            self.prediction = np.argmax(output)
+            self.confidence = np.max(softmax_output)
+            self.alternative = np.argsort(output)[-2]
 
-        # Display output
-        self.prediction_field.insert(tk.END, str(self.prediction))
-        self.confidence_field.insert(tk.END, '%.0f%%' %(self.confidence*100))
-        if self.confidence < 0.8:
-            self.alternative_field.insert(tk.END, str(self.alternative))
-        else:
-            self.alternative_field.insert(tk.END, '/')
+            # Display output
+            self.prediction_field.configure(state='normal')
+            self.prediction_field.insert(tk.END, str(self.prediction))
+            self.prediction_field.configure(state='disabled') # don't allow input
+            self.confidence_field.configure(state='normal')
+            self.confidence_field.insert(tk.END, '%.0f%%' %(self.confidence*100))
+            self.confidence_field.configure(state='disabled')
+            self.alternative_field.configure(state='normal')
+            if self.confidence < 0.8:
+                self.alternative_field.insert(tk.END, str(self.alternative))
+            else:
+                self.alternative_field.insert(tk.END, '/')
+            self.alternative_field.configure(state='disabled')
         
     def reset(self):
         """ Empties drawing and feedback fields. """
 
         # Reset tkinter
+        self.prediction_field.configure(state='normal')
+        self.confidence_field.configure(state='normal')
+        self.alternative_field.configure(state='normal')
         self.prediction_field.delete(1.0,tk.END)
         self.confidence_field.delete(1.0,tk.END)
         self.alternative_field.delete(1.0,tk.END)
+        self.prediction_field.configure(state='disabled')
+        self.confidence_field.configure(state='disabled')
+        self.alternative_field.configure(state='disabled')
         self.drawing_field.delete('all')
         self.drawing_field.create_rectangle(70,40, 180,210, 
             fill='light grey', outline='light grey')

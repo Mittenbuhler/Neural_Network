@@ -1,0 +1,8 @@
+digit_recognition.py
+install_network.py
+nn_functions.py
+setup.py
+Digit_Recognition_NN.egg-info/PKG-INFO
+Digit_Recognition_NN.egg-info/SOURCES.txt
+Digit_Recognition_NN.egg-info/dependency_links.txt
+Digit_Recognition_NN.egg-info/top_level.txt

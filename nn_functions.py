@@ -1,5 +1,7 @@
 import numpy as np
 import os
+import urllib.request
+import gzip
 
 import idx2numpy
 
@@ -68,7 +70,7 @@ class NeuralNetwork:
 
         print('Training...')
         for epoch in np.arange(epochs):
-            print('Epoch: ' + str(epoch + 1))
+            print('Epoch: ' + str(epoch + 1) + ' (of ' + str(epochs) + ')')
             for i in np.arange(len(input_data)):
                 self.one_training(input_data[i], target_data[i])
         
@@ -214,11 +216,10 @@ class NeuralNetwork:
         else:
             print('Saving failed')
 
+def pre_processing():
+    """ Downloads, imports and preprocess data for digit recognition.
 
-def pre_processing(show=False):
-    """ Import and preprocess data for digit recognition.
-
-    Data was downloaded from the MNIST database. Consists of 70.000
+    Data is downloaded from the MNIST database. Consists of 70.000
     handwritten digits of 28x28 pixels. Each with a corresponding,
     manually added label. Data is split into 60.000 instances for 
     training and 10.000 instances for testing.
@@ -230,13 +231,38 @@ def pre_processing(show=False):
         labels in a format optimized for the neural network.
 
     """
+
+    # Download data (to 'DR_Data' folder)
+    downloaded = os.path.exists('DR_Data')
+
+    if not downloaded:
+
+        os.mkdir('DR_Data')
+        print('Downloading dataset...')
+        url = 'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz'
+        urllib.request.urlretrieve(url, 'DR_Data/train-images-idx3-ubyte.gz')
+        url = 'http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz'  
+        urllib.request.urlretrieve(url, 'DR_Data/train-labels-idx1-ubyte.gz')
+        url = 'http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz'  
+        urllib.request.urlretrieve(url, 'DR_Data/t10k-images-idx3-ubyte.gz')
+        url = 'http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz'  
+        urllib.request.urlretrieve(url, 'DR_Data/t10k-labels-idx1-ubyte.gz')
+
+        # Check download
+        if os.path.isfile('DR_Data/train-images-idx3-ubyte.gz') and os.path.isfile('DR_Data/train-labels-idx1-ubyte.gz') and os.path.isfile('DR_Data/t10k-images-idx3-ubyte.gz') and os.path.isfile('DR_Data/t10k-labels-idx1-ubyte.gz'):
+            print('Downloaded data successfully')
+        else:
+            print('Download failed')
+    else:
+        print('Data has been downloaded')
     
+
     # Load data and convert data to numpy arrays
-    os.chdir('Data')
-    train_images = idx2numpy.convert_from_file('train-images.idx3-ubyte')
-    train_labels = idx2numpy.convert_from_file('train-labels.idx1-ubyte')
-    test_images = idx2numpy.convert_from_file('t10k-images.idx3-ubyte')
-    test_labels = idx2numpy.convert_from_file('t10k-labels.idx1-ubyte')
+    os.chdir('DR_Data')
+    train_images = idx2numpy.convert_from_file(gzip.open('train-images-idx3-ubyte.gz','r'))
+    train_labels = idx2numpy.convert_from_file(gzip.open('train-labels-idx1-ubyte.gz','r'))
+    test_images = idx2numpy.convert_from_file(gzip.open('t10k-images-idx3-ubyte.gz','r'))
+    test_labels = idx2numpy.convert_from_file(gzip.open('t10k-labels-idx1-ubyte.gz','r'))
     os.chdir('..')
 
     # Re-scale input values from intervals [0,255] to [0.01,1] 
