@@ -5,7 +5,7 @@ python:
 
 install:
   - pip install idx2numpy
-  - pip install PIL
+  - pip install pil
 
 script:
   - python -m unittest
