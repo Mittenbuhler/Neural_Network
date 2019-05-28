@@ -2,19 +2,70 @@ import numpy as np
 import os
 import urllib.request
 import gzip
-import subprocess
-import sys
 import tkinter as tk
 from PIL import Image, ImageDraw, ImageOps
 
-try:
-    import idx2numpy
-except ImportError:
-    print('installing idx2numpy...')
-    subprocess.call([sys.executable, "-m", "pip", "install", 'idx2numpy'])
+import idx2numpy
+
+""" Functions necessary to set up neural network for digit recognition 
+and run associated GUI.
+
+Contents
+--------
+NeuralNetwork: class
+    Defines functions necessary to setup, train, evaluate and save a 
+    neural network.
+pre_processing: function
+    Downloads, imports and preprocess data for digit recognition.
+install_network: function
+    Sets up neural network by running the functions defined in the 
+    NeuralNetwork class with certain arguments chosen by the author.
+Gui: class
+    Defines functions necessary for digit recognition GUI.
+run_gui: function
+    Runs GUI in infinite loop.
+"""
 
 class NeuralNetwork:
-    """ Defines functions necessary to install neural network. """
+    """ Defines functions necessary to setup, train, evaluate and save
+    a neural network. 
+    
+    Attributes
+    ----------
+    design: list
+        Contains the number of nodes in each layer (length is number 
+        of layers)
+    weights: list
+        Contains weight matrices
+    step_size: float
+        Step size for training algorithm
+    activation_function: function
+        Activation function used in neural network
+    bias: boolean
+        Bias nodes on or off
+    activation: list
+        Contains activation of nodes at each layer
+    confusion_matrix: np.array
+        Confusion matrix produced in 'evaluate' method (true labels
+        in rows, predicitons in columns)
+    accuracy, recall, precision: float
+        Accuracy, recall, and precision of neural network produced in 
+        'evaluate' method
+    
+    Methods
+    -------
+    train(input_data, target_data, epochs=1)
+        Loops of 'one_training' function
+    one_training(input_data, target_data)
+        Computes cost and updates weights accordingly using backpropagation
+    run(input_data)
+        Forward propagation for single input
+    evaluate(input_data, target_data)
+        Assesses performance of neural network and computes performance
+        measures
+    save(file_name)
+        Saves weights of neural network as np.array
+    """
 
     def sigmoid(x):
         """ Activation function used in neural network. """
@@ -26,20 +77,24 @@ class NeuralNetwork:
             activation_function=sigmoid, bias=False):
         """ Set up basic attributes of neural network.
 
-        Args: 
-            design (list): List containing the number of nodes in each layer.
-                Can have any length (above 1). E.g., [784, 20, 10].
-            weights (list): List containing numpy arrays with desired weights.
-                Defaults to None. If no weights are specified, random ones 
-                are generated.
-            step_size (float): Step size used for backpropagation. 
-                Defaults to 0.01
-            activation_function (string): Specifies activation function of
-                neural network. Only a sigmoid function is given, but others,
-                e.g., ReLU, could be added.
-            bias (boolean): Should bias node be added to neural network?
-                Defaults to None.
-
+        Arguments
+        --------- 
+        design: list
+            List containing the number of nodes in each layer. Can 
+            have any length (above 1). E.g., [784, 20, 10].
+        weights: list
+            List containing numpy arrays with desired weights.
+            Defaults to None. If no weights are specified, random 
+            ones are generated.
+        step_size: float
+            Step size used for backpropagation. Defaults to 0.01
+        activation_function: function
+            Specifies activation function of neural network. Only a 
+            sigmoid function is given, but others, e.g., ReLU, could 
+            be added.
+        bias: boolean
+            Should bias node be added to neural network? Defaults to 
+            False.
         """
 
         self.design = design
@@ -63,17 +118,19 @@ class NeuralNetwork:
             print('Network creation failed')        
     
     def train(self, input_data, target_data, epochs=1):
-        """ Loop for backpropagation function (see below).
+        """ Loop for 'one_train' (backpropagation) function (see below).
         
-        Args:
-            input_data (array): 3-dimensional numpy array containing
-                input data (see pre_processing function for exact format).
-            target_data (array): 2-dimensional numpy array containing
-                target data in one-hot representation.
-            epochs (int): Number of times the training algorithms 
-                iterates through the *entire* dataset.
-                Defaults to 1.
-
+        Arguments
+        --------- 
+        input_data: array
+            3-dimensional numpy array containing input data (see 
+            pre_processing function for exact format).
+        target_data: array
+            2-dimensional numpy array containing target data in one-hot 
+            representation.
+        epochs: int
+            Number of times the training algorithms iterates through 
+            the *entire* dataset. Defaults to 1.
         """
 
         print('Training...')
@@ -84,19 +141,21 @@ class NeuralNetwork:
         
         # Function check
         if i == len(input_data) - 1:
-            print('Data trained successfully')
+            print('Network trained successfully')
         else:
             print('Training failed')
     
     def one_training(self, input_data, target_data):
         """ Backpropagation algorithm to train neural network.
         
-        Args:
-            input_data (array): 2-dimensional numpy array containing
-                a single input. Passed by train function (see above).
-            target_data (array): 2-dimensional numpy array containing
-                a single target. Passed by train function (see above).
-
+        Arguments
+        --------- 
+        input_data: array
+            2-dimensional numpy array containing a single input. Passed 
+            by train function (see above).
+        target_data: array
+            2-dimensional numpy array containing a single target. Passed 
+            by train function (see above).
         """
         
         # Convert data into coumn vectors
@@ -132,10 +191,10 @@ class NeuralNetwork:
 
         Computes output of neural network for a single input.
         
-        Args:
-            input_data (array): 2-dimensional numpy array containing
-                a single input.
-
+        Arguments
+        --------- 
+        input_data: array
+            2-dimensional numpy array containing a single input.
         """
         
         # Convert data into column vector
@@ -163,12 +222,13 @@ class NeuralNetwork:
 
         Note: Use independent test data!
         
-        Args:
-            input_data (array): 3-dimensional numpy array containing
-                test input data.
-            target_data (array): 2-dimensional numpy array containing
-                test target data in one-hot representation.
-
+        Arguments
+        --------- 
+        input_data: array
+            3-dimensional numpy array containing test input data.
+        target_data: array
+            2-dimensional numpy array containing test target data in 
+            one-hot representation.
         """
 
         self.confusion_matrix = np.zeros(
@@ -218,6 +278,13 @@ class NeuralNetwork:
                 + str('%.2f' % (self.precision[i] * 100)) + '%')
 
     def save(self, file_name):
+        """ Saves weights of neural network as np.array 
+        
+        Arguments
+        ---------
+        file_name: string
+            Name of the file that is saved (without file extension)
+        """
         np.save(file_name + '.npy', np.asarray(self.weights))
         if os.path.isfile(file_name + '.npy'):
             print('Network saved successfully as ' + file_name + '.npy')
@@ -232,12 +299,9 @@ def pre_processing():
     manually added label. Data is split into 60.000 instances for 
     training and 10.000 instances for testing.
 
-    Uses the idx2numpy module.
-
     Returns:
         Matrix representations of digits and correspondings 
         labels in a format optimized for the neural network.
-
     """
 
     # Download data (to 'DR_Data' folder)
@@ -257,8 +321,11 @@ def pre_processing():
         urllib.request.urlretrieve(url, 'DR_Data/t10k-labels-idx1-ubyte.gz')
 
         # Check download
-        if os.path.isfile('DR_Data/train-images-idx3-ubyte.gz') and os.path.isfile('DR_Data/train-labels-idx1-ubyte.gz') and os.path.isfile('DR_Data/t10k-images-idx3-ubyte.gz') and os.path.isfile('DR_Data/t10k-labels-idx1-ubyte.gz'):
-            print('Downloaded data successfully')
+        if (os.path.isfile('DR_Data/train-images-idx3-ubyte.gz') 
+            and os.path.isfile('DR_Data/train-labels-idx1-ubyte.gz') 
+            and os.path.isfile('DR_Data/t10k-images-idx3-ubyte.gz') 
+            and os.path.isfile('DR_Data/t10k-labels-idx1-ubyte.gz')):
+            print('Data downloaded successfully')
         else:
             print('Download failed')
     else:
@@ -267,10 +334,14 @@ def pre_processing():
 
     # Load data and convert data to numpy arrays
     os.chdir('DR_Data')
-    train_images = idx2numpy.convert_from_file(gzip.open('train-images-idx3-ubyte.gz','r'))
-    train_labels = idx2numpy.convert_from_file(gzip.open('train-labels-idx1-ubyte.gz','r'))
-    test_images = idx2numpy.convert_from_file(gzip.open('t10k-images-idx3-ubyte.gz','r'))
-    test_labels = idx2numpy.convert_from_file(gzip.open('t10k-labels-idx1-ubyte.gz','r'))
+    train_images = idx2numpy.convert_from_file(
+        gzip.open('train-images-idx3-ubyte.gz','r'))
+    train_labels = idx2numpy.convert_from_file(
+        gzip.open('train-labels-idx1-ubyte.gz','r'))
+    test_images = idx2numpy.convert_from_file(
+        gzip.open('t10k-images-idx3-ubyte.gz','r'))
+    test_labels = idx2numpy.convert_from_file(
+        gzip.open('t10k-labels-idx1-ubyte.gz','r'))
     os.chdir('..')
 
     # Re-scale input values from intervals [0,255] to [0.01,1] 
@@ -293,17 +364,39 @@ def pre_processing():
     test_labels[test_labels == 0] = 0.01
 
     # Function check
-    if train_images.shape == (60000, 28, 28) and train_labels.shape == (60000, 10):
+    if (train_images.shape == (60000, 28, 28) 
+        and train_labels.shape == (60000, 10)):
         print('Data preprocessed successfully')
     else:
         print('Preprocessing failed')
     
     return train_images, train_labels, test_images, test_labels
 
-def install_network(design=[784,200,100,10], bias=True, epochs=3, file_name='my_network'):
-    """ Sets up neural network by running the functions defined above. 
+def install_network(design=[784,200,100,10], 
+                    bias=True, 
+                    epochs=3, 
+                    file_name='my_network'
+                    ):
+    """ Sets up neural network by running the functions defined above
+    with certain arguments chosen by the author. 
     
-    Design, bias, and number of epochs are given but can be changed.
+    Purpose of the function is to make the set up the neural network 
+    easier.
+
+    Arguments
+    ---------
+    design: list, optional
+        List containing the number of nodes in each layer. Default
+        to [784,200,100,10]
+    bias: boolean, optional
+        Should bias node be added to neural network? Defaults to 
+        True.
+    epochs: int, optional
+        Number of times the training algorithms iterates through the 
+        *entire* dataset. Defaults to 3.
+    file_name: string, optional
+        Name of the file that is saved (without file extension). 
+        Defaults to 'my_network'
     """
 
     # Import data
@@ -321,9 +414,57 @@ def install_network(design=[784,200,100,10], bias=True, epochs=3, file_name='my_
 
 
 class Gui:
-    """ Defines functions necessary for GUI. """
+    """ Defines functions necessary for digit recognition GUI. 
     
-    def __init__(self, master):
+    Gui registers drawing input from user, runs it through neural 
+    network (using the 'run' function defined above), and displays 
+    output.
+
+    Note: Current directory needs to contain 'DR_Data' folder with npy
+    file containing the weights of the neural network
+
+    Attributes
+    ----------
+    design: list
+        Design of neural network (number of nodes in each layer)
+    weights: list
+        Weights of neural network (saved as numpy array by, e.g.,
+        'install_network' function).
+    neural_network: NeuralNetwork-object
+        Neural network created by NeuralNetwork class (see above).
+    master: tk-object
+        Window where the interface is created.
+    button_reset: tk-object
+    button_recognize: tk-object
+    drawing_field: tk-object
+    prediction_field: tk-object
+    confidence_field: tk-object
+    alternative_field: tk-object
+    PIL_drawing: PIL-object
+    PIL_draw: PIL-object
+    input_image: np.array
+        Processed user drawing passed to neural network
+    prediction: int
+        Output
+    confidence: float
+        Output
+    alternative: int
+        Output
+
+    
+    Methods
+    -------
+    previous_position(event)
+        Saves last position of the mouse.
+    draw(event)
+        Draws line when mouse button 1 is pressed.
+    run_nn()
+        Feeds image to neural network and retreives output.
+    reset()
+        Empties drawing and feedback fields. 
+    """
+    
+    def __init__(self, master, design):
         """ Set up layout and basic functionality of interface.
 
         Creates window with input and feedback frame. The input frame contains
@@ -332,17 +473,21 @@ class Gui:
         to the neural network. The feedback frame contains three fields that 
         display various outputs of the neural network.
 
-        Args:
-            master: Window where the interface is created.
-
+        Arguments
+        --------- 
+        master: tk-object
+            Window where the interface is created.
+        design: list
+            Design of neural network (number of nodes in each layer)
         """
         
         # Build neural network
+        self.design = design
         os.chdir('DR_Data')
         self.weights = np.load('my_network.npy').tolist()
         os.chdir('..')
         self.neural_network = NeuralNetwork(
-            [784,200,100,10], 
+            design, 
             weights=self.weights, 
             bias=True,
             )
@@ -424,8 +569,9 @@ class Gui:
 
         (no matter if mouse button has been pressed or not) 
 
-        Args:
-            event: Mouse input
+        Arguments
+        --------- 
+        event: Mouse input
         
         """
 
@@ -438,8 +584,9 @@ class Gui:
         Connects previous mouse position to current mouse position in both
         the tkinter image and the PIL image.
 
-        Args:
-            event: Mouse input
+        Arguments
+        --------- 
+        event: Mouse input
 
         """
 
@@ -467,11 +614,12 @@ class Gui:
         img_resized = img_inverted.resize((28,28), Image.ANTIALIAS)
         self.input_image = np.asarray(img_resized)[:,:,0] * (0.99/255) + 0.01
 
-        if self.input_image.sum() > 0.01*784: # drawing not empty
+        if self.input_image.sum() > 0.01*784: # make sure drawing is not empty 
             # Forward propagation of neural network
             output = self.neural_network.run(self.input_image).T[0]
             linear_output = np.log(output/(1-output))
-            softmax_output = np.exp(linear_output) / np.sum(np.exp(linear_output), axis=0)
+            softmax_output = np.exp(linear_output) / np.sum(np.exp(linear_output), 
+                axis=0)
 
             # Extract output from neural network
             self.prediction = np.argmax(output)
@@ -480,16 +628,20 @@ class Gui:
 
             # Display output
             self.prediction_field.configure(state='normal')
+            self.prediction_field.delete(1.0,tk.END) # reset fields first
             self.prediction_field.insert(tk.END, str(self.prediction))
             self.prediction_field.configure(state='disabled') # don't allow input
             self.confidence_field.configure(state='normal')
+            self.confidence_field.delete(1.0,tk.END)
             self.confidence_field.insert(tk.END, '%.0f%%' %(self.confidence*100))
             self.confidence_field.configure(state='disabled')
             self.alternative_field.configure(state='normal')
             if self.confidence < 0.8:
+                self.alternative_field.delete(1.0,tk.END)
                 self.alternative_field.insert(tk.END, str(self.alternative))
             else:
-                self.alternative_field.insert(tk.END, '/')
+                self.alternative_field.delete(1.0,tk.END)
+                self.alternative_field.insert(tk.END, ' ')
             self.alternative_field.configure(state='disabled')
         
     def reset(self):
@@ -513,9 +665,20 @@ class Gui:
         self.PIL_drawing=Image.new("RGB",(250,250),(255,255,255))
         self.PIL_draw=ImageDraw.Draw(self.PIL_drawing)
 
-def digit_recognition():
-    """ Runs gui (defined above) in infinite loop. """
+def run_gui(design=[784,200,100,10]):
+    """ Runs GUI (defined above) in infinite loop. 
+    
+    Arguments
+    ---------
+    design: list
+        Design of neural network (numer of nodes in each layer).
+        Defaults to [784,200,100,10], just as in 'install_network'
+        function.
+    
+    Note: Needs to correspond to design of neural network saved in
+    npy-file!
+    """
 
     root = tk.Tk()
-    a = Gui(root)
+    a = Gui(root, design)
     root.mainloop()

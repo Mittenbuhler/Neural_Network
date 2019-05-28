@@ -1,3 +1,0 @@
-digit_recognition
-install_network
-nn_functions

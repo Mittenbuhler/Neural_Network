@@ -3,7 +3,7 @@ import random
 import os
 import unittest
 
-from nn_functions import NeuralNetwork, pre_processing
+from digit_recognition import NeuralNetwork, pre_processing
 
 
 train_images, train_labels, test_images, test_labels = pre_processing()

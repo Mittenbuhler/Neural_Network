@@ -1,0 +1,4 @@
+[console_scripts]
+digit_recognition = digit_recognition:run_gui
+install_network = digit_recognition:install_network
+
