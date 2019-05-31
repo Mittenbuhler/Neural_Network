@@ -484,7 +484,7 @@ class Gui:
         # Build neural network
         self.design = design
         os.chdir('DR_Data')
-        self.weights = np.load('my_network.npy').tolist()
+        self.weights = np.load('my_network.npy', allow_pickle=True).tolist()
         os.chdir('..')
         self.neural_network = NeuralNetwork(
             design, 

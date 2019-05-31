@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="digit_recognition",
-    version="0.0.8",
+    version="0.0.9",
     py_modules=['digit_recognition'],
     #package_dir={'': 'src'},
     author="Maximilian Mittenbuhler",
