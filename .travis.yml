@@ -5,7 +5,7 @@ python:
 
 install:
   - pip install idx2numpy
-  - pip install pil
+  - pip install Pillow
 
 script:
   - python -m unittest
