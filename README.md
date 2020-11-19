@@ -15,11 +15,11 @@
 * [Acknowledgements](#acknowledgements)
 
 ## About the Project
-This repository contains a PyPI package for the recognition of handwritten digits using a neural network (NN). Only Numpy is used for the implementation of the neural network itself. The project was created in the context of a programming course at the University of Amsterdam. It therefore rather serves illustrative than practical purposes.
+This repository contains a PyPI package for the recognition of handwritten digits using a neural network (NN). Only Numpy is used for the implementation of the NN itself. The project was created in the context of a programming course at the University of Amsterdam. It therefore rather serves illustrative than practical purposes.
 
-The most interesting code - the implementation of the neural network (i.e., initializing, training, running, and evaluating) - can be found in the 'digit_recognition.py' script.
+The most interesting code - the implementation of the NN (i.e., initializing, training, running, and evaluating) - can be found in the 'digit_recognition.py' script.
 
-The package also includes a GUI, which allows to draw a number and have it recognized by the neural network.
+The package also includes a GUI, which allows to draw a number and have it recognized by the NN.
 
 ![alt text](https://github.com/Mittenbuhler/digit_recognition/blob/dev/gui_example.png?raw=true)
 
@@ -68,7 +68,7 @@ In the feedback field, three outputs are displayed: first, the digit recognized 
 
 
 ### Optional: Using the 'digit_recognition' Package in Python
-Alternatively to calling functions from the command prompt/terminal as described above, they can be called from python directly (import package, e.g., with `import digit_recognition`). This way, all functions from the package can be called individually. This provides greater flexibility in setting up the neural network. Most notably, the user can specify the design of the neural network (number of layers, number of nodes in each layer, bias nodes on or off), specify the training process (number of epochs, step size), access the confidence matrix when evaluating the NN, and run the forward propagation algorithm individually. 
+Alternatively to calling functions from the command prompt/terminal as described above, they can be called from python directly (import package, e.g., with `import digit_recognition`). This way, all functions from the package can be called individually. This provides greater flexibility in setting up the NN. Most notably, the user can specify the design of the NN (number of layers, number of nodes in each layer, bias nodes on or off), specify the training process (number of epochs, step size), access the confidence matrix when evaluating the NN, and run the forward propagation algorithm individually. 
 
 For more details see https://pypi.org/project/digit-recognition/#description.
 
@@ -81,6 +81,6 @@ Maximilian Mittenbühler - max.mittenbuhler@gmail.com
 Project link: [https://github.com/Mittenbuhler/digit_recognition](https://github.com/Mittenbuhler/digit_recognition)
 
 ## Acknowledgments
-The implementation of the neural network is based on information and code examples from the following sources:
+The implementation of the NN is based on information and code examples from the following sources:
 - [https://www.python-course.eu/neural_networks.php](https://www.python-course.eu/neural_networks.php)
 - [http://neuralnetworksanddeeplearning.com/index.html](http://neuralnetworksanddeeplearning.com/index.html)
