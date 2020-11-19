@@ -25,7 +25,7 @@ The package also includes a GUI, which allows to draw a number and have it recog
 
 ## Manual
 ### Prerequisits
-The package uses Python 3.7 and the following dependencies: 
+The package was built with Python 3.7 and uses the following dependencies: 
 - `numpy`
 - `urllib3`
 - `gzip`
@@ -35,24 +35,30 @@ The package uses Python 3.7 and the following dependencies:
 These should be installed automatically during the installation if necessary. If the package does not run as intended, please ensure that the dependencies listed here have been installed correctly.
 
 ### Getting Started
-You can either clone this repository or install the package from PyPI.
-#### Clone from Github
+You can download the package from Github or from PyPI
+
+#### Github
+First, clone the repository.
 ```
 git clone https://github.com/Mittenbuhler/digit_recognition.git
 ```
+Then, install the package.
+```
+sudo python setup.py install
+```
 
-#### Install from PyPI
+#### PyPI
 Use either pip install
 ```
 pip install digit_recognition
 ```
 or download the package from https://pypi.org/project/digit-recognition/ and install the package using
 ```
-python setup.py install
+sudo python setup.py install
 ```
 
 ### Setting up the NN
-The package does not include a trained NN, but only the necessary functions to build it. Therefore, prior to using the interface, the NN has to be set up (this has only to be done once). To do so, run the command `install_network` in the command prompt/terminal (alternative: import the ‘digit_recognition’ module in python and call the `install_network()` function).
+The package does not include a trained NN, but only the necessary functions to build it. Therefore, prior to using the interface, the NN has to be set up (this has to be done only once). To do so, run the command `install_network` in the command prompt/terminal (alternative: import the ‘digit_recognition’ module in python and call the `install_network()` function).
 
 This creates a folder in the current directory (“DR_Data”) and downloads training and test sets from the MNIST database to this folder. It uses this data to train a NN with 784, 200, 100, and 10 nodes in each of four layers, respectively. The training algorithm goes through three epochs each with 60.000 training digits (this may take a few minutes). The NN is evaluated and the accuracy as well as the recall and precision for each digit are printed to the console (**important**: accuracy should be above 95%). Finally, the NN is saved to the “DR_Data” folder.
 
