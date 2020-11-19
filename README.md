@@ -9,7 +9,7 @@
   * [Setting up the NN](#setting-up-the-nn)
   * [Starting up the GUI](#starting-up-the-gui)
   * [Using the Interface](#using-the-interface)
-  * [Optional: Using the 'digit_recognition' Package in Python](#optional)
+  * [Advanced](#advanced)
 * [License](#license)
 * [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
@@ -24,7 +24,7 @@ The package also includes a GUI, which allows to draw a number and have it recog
 ![alt text](https://github.com/Mittenbuhler/digit_recognition/blob/dev/gui_example.png?raw=true)
 
 ## Manual
-### Prerequisits
+### Prerequisites
 The package was built with Python 3.7 and uses the following dependencies: 
 - `numpy`
 - `urllib3`
@@ -72,8 +72,7 @@ In the feedback field, three outputs are displayed: first, the digit recognized 
 
 **Important**: The performance of the NN is highly sensitive to size and location of the user’s digit in the drawing field. The grey rectangle in the drawing field indicates location and size for optimal performance.
 
-
-### Optional: Using the 'digit_recognition' Package in Python
+### Advanced
 Alternatively to calling functions from the command prompt/terminal as described above, they can be called from python directly (import package, e.g., with `import digit_recognition`). This way, all functions from the package can be called individually. This provides greater flexibility in setting up the NN. Most notably, the user can specify the design of the NN (number of layers, number of nodes in each layer, bias nodes on or off), specify the training process (number of epochs, step size), access the confidence matrix when evaluating the NN, and run the forward propagation algorithm individually. 
 
 For more details see https://pypi.org/project/digit-recognition/#description.
